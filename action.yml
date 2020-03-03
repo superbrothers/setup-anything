@@ -1,0 +1,14 @@
+name: 'Setup anything'
+description: 'Setup any tool'
+author: 'Kazuki Suda'
+inputs:
+  url:
+    description: 'The URL of the tool'
+    required: true
+  toolName:
+    description: 'The name of the tool'
+    required: false
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
