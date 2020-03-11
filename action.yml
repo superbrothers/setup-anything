@@ -1,14 +1,20 @@
 name: 'Setup anything'
-description: 'Setup any tool'
+description: 'Setup any tools'
 author: 'Kazuki Suda'
 inputs:
-  url:
-    description: 'The URL of the tool'
+  tool_name:
+    description: The name of the tool
     required: true
-  toolName:
-    description: 'The name of the tool'
+  url:
+    description: The URL of the downloaded file
+    required: true
+  archive_format:
+    description: The archive format of the downloaded file. One of: zip|tar.gz|tgz|none
+    required: true
+    default: none
+  bin_dir:
+    description: The path of the bin directory
     required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
-
