@@ -1599,17 +1599,18 @@ exports.__esModule = true;
 var core = __webpack_require__(470);
 var installer = __webpack_require__(749);
 exports.run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var url, archiveFormat, binDir, toolPath, binPath, err_1;
+    var url, toolName, archiveFormat, binDir, toolPath, binPath, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 4, , 5]);
                 url = core.getInput("url", { required: true });
+                toolName = core.getInput("tool_name");
                 archiveFormat = core.getInput("archive_format");
                 binDir = core.getInput("bin_dir");
                 toolPath = installer.findTool(url);
                 if (!(toolPath === "")) return [3, 3];
-                return [4, installer.downloadTool(url, archiveFormat, binDir)];
+                return [4, installer.downloadTool(url, toolName, archiveFormat, binDir)];
             case 1:
                 binPath = _a.sent();
                 return [4, installer.cacheTool(binPath, url)];
@@ -4948,7 +4949,8 @@ var filenamifyUrl = __webpack_require__(878);
 var util = __webpack_require__(669);
 var childProcess = __webpack_require__(129);
 var execFile = util.promisify(childProcess.execFile);
-var toolName = "setup-anything";
+var fs = __webpack_require__(747);
+var rename = util.promisify(fs.rename);
 exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, function () {
     var stdout;
     return __generator(this, function (_a) {
@@ -4960,8 +4962,8 @@ exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, fu
         }
     });
 }); };
-exports.downloadTool = function (url, archiveFormat, binDir) { return __awaiter(void 0, void 0, void 0, function () {
-    var downloadedPath, extractedPath, binPath, _a;
+exports.downloadTool = function (url, toolName, archiveFormat, binDir) { return __awaiter(void 0, void 0, void 0, function () {
+    var downloadedPath, extractedPath, binPath, newPath, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0: return [4, exports.expandEnv(url)];
@@ -4976,6 +4978,12 @@ exports.downloadTool = function (url, archiveFormat, binDir) { return __awaiter(
                 downloadedPath = _b.sent();
                 core.debug("Downloaded to " + downloadedPath);
                 if (!(archiveFormat === "none")) return [3, 4];
+                if (toolName !== "") {
+                    newPath = path.join(path.dirname(downloadedPath), toolName);
+                    core.info("Renaming to " + toolName);
+                    rename(downloadedPath, newPath);
+                    core.debug("Renamed " + downloadedPath + " to " + newPath);
+                }
                 binPath = path.dirname(downloadedPath);
                 return [3, 13];
             case 4:
@@ -5012,13 +5020,13 @@ exports.downloadTool = function (url, archiveFormat, binDir) { return __awaiter(
 }); };
 exports.findTool = function (url) {
     var version = filenamifyUrl(url);
-    return tc.find(toolName, version);
+    return tc.find("setup-anything", version);
 };
 exports.cacheTool = function (sourceDir, url) { return __awaiter(void 0, void 0, void 0, function () {
     var version;
     return __generator(this, function (_a) {
         version = filenamifyUrl(url);
-        return [2, tc.cacheDir(sourceDir, toolName, version)];
+        return [2, tc.cacheDir(sourceDir, "setup-anything", version)];
     });
 }); };
 

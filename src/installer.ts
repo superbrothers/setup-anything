@@ -5,16 +5,17 @@ import * as filenamifyUrl from "filenamify-url";
 import * as util from "util";
 import * as childProcess from "child_process";
 const execFile = util.promisify(childProcess.execFile);
-
-const toolName = "setup-anything";
+import * as fs from "fs";
+const rename = util.promisify(fs.rename);
 
 export const expandEnv = async (str: string): Promise<string> => {
-  const { stdout } = await execFile("echo", ["-n", str], {shell: true});
+  const { stdout } = await execFile("echo", ["-n", str], { shell: true });
   return stdout;
 };
 
 export const downloadTool = async (
   url: string,
+  toolName: string,
   archiveFormat: string,
   binDir: string
 ): Promise<string> => {
@@ -28,6 +29,12 @@ export const downloadTool = async (
   let extractedPath: string;
   let binPath: string;
   if (archiveFormat === "none") {
+    if (toolName !== "") {
+      const newPath = path.join(path.dirname(downloadedPath), toolName);
+      core.info(`Renaming to ${toolName}`);
+      rename(downloadedPath, newPath);
+      core.debug(`Renamed ${downloadedPath} to ${newPath}`);
+    }
     binPath = path.dirname(downloadedPath);
   } else {
     core.info("Extracting...");
@@ -58,7 +65,7 @@ export const downloadTool = async (
 
 export const findTool = (url: string): string => {
   const version = filenamifyUrl(url);
-  return tc.find(toolName, version);
+  return tc.find("setup-anything", version);
 };
 
 export const cacheTool = async (
@@ -66,5 +73,5 @@ export const cacheTool = async (
   url: string
 ): Promise<string> => {
   const version = filenamifyUrl(url);
-  return tc.cacheDir(sourceDir, toolName, version);
+  return tc.cacheDir(sourceDir, "setup-anything", version);
 };

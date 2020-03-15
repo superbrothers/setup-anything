@@ -5,6 +5,9 @@ inputs:
   url:
     description: "The URL of the downloaded file"
     required: true
+  tool_name:
+    description: "The name of the downloaded file"
+    required: false
   archive_format:
     description: "The archive format of the downloaded file. One of: zip|tar|tar.gz|tgz|7z|none"
     required: false

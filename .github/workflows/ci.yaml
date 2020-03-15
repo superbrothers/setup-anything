@@ -29,11 +29,12 @@ jobs:
   env:
     runs-on: [ubuntu-latest]
     env:
-      KIND_VERSION: v0.7.0
+      KIND_VERSION: v0.6.1
     steps:
     - uses: actions/checkout@v2
     - uses: ./
       with:
         url: https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
+        tool_name: kind
         test: kind version
     - run: kind version
