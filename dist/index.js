@@ -4943,6 +4943,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var core = __webpack_require__(470);
 var tc = __webpack_require__(533);
+var exec = __webpack_require__(986);
 var path = __webpack_require__(622);
 var filenamifyUrl = __webpack_require__(878);
 var toolName = "setup-anything";
@@ -4950,44 +4951,49 @@ exports.downloadTool = function (url, archiveFormat, binDir) { return __awaiter(
     var downloadedPath, extractedPath, binPath, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
-            case 0:
+            case 0: return [4, exports.expandEnv(url)];
+            case 1:
+                url = _b.sent();
+                return [4, exports.expandEnv(binDir)];
+            case 2:
+                binDir = _b.sent();
                 core.info("Downloading from " + url);
                 return [4, tc.downloadTool(url)];
-            case 1:
+            case 3:
                 downloadedPath = _b.sent();
                 core.debug("Downloaded to " + downloadedPath);
-                if (!(archiveFormat === "none")) return [3, 2];
+                if (!(archiveFormat === "none")) return [3, 4];
                 binPath = path.dirname(downloadedPath);
-                return [3, 11];
-            case 2:
+                return [3, 13];
+            case 4:
                 core.info("Extracting...");
                 _a = archiveFormat;
                 switch (_a) {
-                    case "zip": return [3, 3];
-                    case "7z": return [3, 5];
-                    case "tar.gz": return [3, 7];
-                    case "tgz": return [3, 7];
-                    case "tar": return [3, 7];
+                    case "zip": return [3, 5];
+                    case "7z": return [3, 7];
+                    case "tar.gz": return [3, 9];
+                    case "tgz": return [3, 9];
+                    case "tar": return [3, 9];
                 }
-                return [3, 9];
-            case 3: return [4, tc.extractZip(downloadedPath)];
-            case 4:
-                extractedPath = _b.sent();
-                return [3, 10];
-            case 5: return [4, tc.extract7z(downloadedPath)];
+                return [3, 11];
+            case 5: return [4, tc.extractZip(downloadedPath)];
             case 6:
                 extractedPath = _b.sent();
-                return [3, 10];
-            case 7: return [4, tc.extractTar(downloadedPath)];
+                return [3, 12];
+            case 7: return [4, tc.extract7z(downloadedPath)];
             case 8:
                 extractedPath = _b.sent();
-                return [3, 10];
-            case 9: throw new Error("Does not support to extract this archive format: " + archiveFormat);
+                return [3, 12];
+            case 9: return [4, tc.extractTar(downloadedPath)];
             case 10:
+                extractedPath = _b.sent();
+                return [3, 12];
+            case 11: throw new Error("Does not support to extract this archive format: " + archiveFormat);
+            case 12:
                 core.debug("Extracted to " + extractedPath);
                 binPath = path.join(extractedPath, binDir);
-                _b.label = 11;
-            case 11: return [2, binPath];
+                _b.label = 13;
+            case 13: return [2, binPath];
         }
     });
 }); };
@@ -5000,6 +5006,31 @@ exports.cacheTool = function (sourceDir, url) { return __awaiter(void 0, void 0,
     return __generator(this, function (_a) {
         version = filenamifyUrl(url);
         return [2, tc.cacheDir(sourceDir, toolName, version)];
+    });
+}); };
+exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, function () {
+    var stdout, stderr, options, code;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                options = {
+                    listeners: {
+                        stdout: function (data) {
+                            stdout += data.toString();
+                        },
+                        stderr: function (data) {
+                            stderr += data.toString();
+                        }
+                    }
+                };
+                return [4, exec.exec("echo", str.split(" "), options)];
+            case 1:
+                code = _a.sent();
+                if (code > 0) {
+                    throw new Error("'" + stderr + "' with exit code " + code);
+                }
+                return [2, stdout];
+        }
     });
 }); };
 
