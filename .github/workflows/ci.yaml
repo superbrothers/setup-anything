@@ -38,3 +38,12 @@ jobs:
         tool_name: kind
         test: kind version
     - run: kind version
+  archive:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://github.com/superbrothers/kubectl-open-svc-plugin/releases/download/v2.3.0/kubectl-open_svc-linux-amd64.zip
+        archive_format: zip
+    - run: kubectl open-svc -h | grep head
