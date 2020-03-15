@@ -4943,10 +4943,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var core = __webpack_require__(470);
 var tc = __webpack_require__(533);
-var exec = __webpack_require__(986);
 var path = __webpack_require__(622);
 var filenamifyUrl = __webpack_require__(878);
+var util = __webpack_require__(669);
+var childProcess = __webpack_require__(129);
+var execFile = util.promisify(childProcess.execFile);
 var toolName = "setup-anything";
+exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, function () {
+    var stdout;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4, execFile("echo", str.split(" "), {
+                    env: process.env
+                })];
+            case 1:
+                stdout = (_a.sent()).stdout;
+                return [2, stdout];
+        }
+    });
+}); };
 exports.downloadTool = function (url, archiveFormat, binDir) { return __awaiter(void 0, void 0, void 0, function () {
     var downloadedPath, extractedPath, binPath, _a;
     return __generator(this, function (_b) {
@@ -5006,31 +5021,6 @@ exports.cacheTool = function (sourceDir, url) { return __awaiter(void 0, void 0,
     return __generator(this, function (_a) {
         version = filenamifyUrl(url);
         return [2, tc.cacheDir(sourceDir, toolName, version)];
-    });
-}); };
-exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, function () {
-    var stdout, stderr, options, code;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                options = {
-                    listeners: {
-                        stdout: function (data) {
-                            stdout += data.toString();
-                        },
-                        stderr: function (data) {
-                            stderr += data.toString();
-                        }
-                    }
-                };
-                return [4, exec.exec("echo", str.split(" "), options)];
-            case 1:
-                code = _a.sent();
-                if (code > 0) {
-                    throw new Error("'" + stderr + "' with exit code " + code);
-                }
-                return [2, stdout];
-        }
     });
 }); };
 

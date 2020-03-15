@@ -1,10 +1,19 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
-import * as exec from "@actions/exec";
 import * as path from "path";
 import * as filenamifyUrl from "filenamify-url";
+import * as util from "util";
+import * as childProcess from "child_process";
+const execFile = util.promisify(childProcess.execFile);
 
 const toolName = "setup-anything";
+
+export const expandEnv = async (str: string): Promise<string> => {
+  const { stdout } = await execFile("echo", str.split(" "), {
+    env: process.env
+  });
+  return stdout;
+};
 
 export const downloadTool = async (
   url: string,
@@ -60,26 +69,4 @@ export const cacheTool = async (
 ): Promise<string> => {
   const version = filenamifyUrl(url);
   return tc.cacheDir(sourceDir, toolName, version);
-};
-
-export const expandEnv = async (str: string): Promise<string> => {
-  let stdout: string;
-  let stderr: string;
-
-  const options = {
-    listeners: {
-      stdout: (data: Buffer) => {
-        stdout += data.toString();
-      },
-      stderr: (data: Buffer) => {
-        stderr += data.toString();
-      },
-    },
-  };
-
-  const code = await exec.exec("echo", str.split(" "), options);
-  if (code > 0) {
-    throw new Error(`'${stderr}' with exit code ${code}`)
-  }
-  return stdout;
 };
