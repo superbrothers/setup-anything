@@ -26,3 +26,14 @@ jobs:
         url: https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
         test: kubectl version --client
     - run: kubectl version --client
+  env:
+    runs-on: [ubuntu-latest]
+    env:
+      KIND_VERSION: 0.7.0
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
+        test: kind version
+    - run: kind version

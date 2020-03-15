@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
+import * as exec from "@actions/exec";
 import * as path from "path";
 import * as filenamifyUrl from "filenamify-url";
 
@@ -10,6 +11,9 @@ export const downloadTool = async (
   archiveFormat: string,
   binDir: string
 ): Promise<string> => {
+  url = await expandEnv(url);
+  binDir = await expandEnv(binDir);
+
   core.info(`Downloading from ${url}`);
   const downloadedPath: string = await tc.downloadTool(url);
   core.debug(`Downloaded to ${downloadedPath}`);
@@ -56,4 +60,26 @@ export const cacheTool = async (
 ): Promise<string> => {
   const version = filenamifyUrl(url);
   return tc.cacheDir(sourceDir, toolName, version);
+};
+
+export const expandEnv = async (str: string): Promise<string> => {
+  let stdout: string;
+  let stderr: string;
+
+  const options = {
+    listeners: {
+      stdout: (data: Buffer) => {
+        stdout += data.toString();
+      },
+      stderr: (data: Buffer) => {
+        stderr += data.toString();
+      },
+    },
+  };
+
+  const code = await exec.exec("echo", str.split(" "), options);
+  if (code > 0) {
+    throw new Error(`'${stderr}' with exit code ${code}`)
+  }
+  return stdout;
 };
