@@ -6,7 +6,7 @@ import * as util from "util";
 import * as childProcess from "child_process";
 const execFile = util.promisify(childProcess.execFile);
 import * as fs from "fs";
-const rename = util.promisify(fs.rename);
+const { rename, chmod } = fs.promises;
 
 export const expandEnv = async (str: string): Promise<string> => {
   const { stdout } = await execFile("echo", ["-n", str], { shell: true });
@@ -17,10 +17,10 @@ export const downloadTool = async (
   url: string,
   toolName: string,
   archiveFormat: string,
-  binDir: string
+  toolDir: string
 ): Promise<string> => {
   url = await expandEnv(url);
-  binDir = await expandEnv(binDir);
+  toolDir = await expandEnv(toolDir);
 
   core.info(`Downloading from ${url}`);
   const downloadedPath: string = await tc.downloadTool(url);
@@ -29,13 +29,20 @@ export const downloadTool = async (
   let extractedPath: string;
   let binPath: string;
   if (archiveFormat === "none") {
+    let toolPath = downloadedPath;
+
     if (toolName !== "") {
-      const newPath = path.join(path.dirname(downloadedPath), toolName);
+      toolPath = path.join(path.dirname(downloadedPath), toolName);
       core.info(`Renaming to ${toolName}`);
-      rename(downloadedPath, newPath);
-      core.debug(`Renamed ${downloadedPath} to ${newPath}`);
+      await rename(downloadedPath, toolPath);
+      core.debug(`Renamed ${downloadedPath} to ${toolPath}`);
     }
-    binPath = path.dirname(downloadedPath);
+
+    const mode = "0666";
+    core.info(`Changing file permissions to ${mode}...`);
+    await chmod(toolPath, mode);
+
+    binPath = path.dirname(toolPath);
   } else {
     core.info("Extracting...");
     switch (archiveFormat) {
@@ -57,7 +64,7 @@ export const downloadTool = async (
     }
     core.debug(`Extracted to ${extractedPath}`);
 
-    binPath = path.join(extractedPath, binDir);
+    binPath = path.join(extractedPath, toolDir);
   }
 
   return binPath;

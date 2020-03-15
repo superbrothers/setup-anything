@@ -6,7 +6,7 @@ export const run = async (): Promise<void> => {
     const url: string = core.getInput("url", { required: true });
     const toolName: string = core.getInput("tool_name");
     const archiveFormat: string = core.getInput("archive_format");
-    const binDir: string = core.getInput("bin_dir");
+    const toolDir: string = core.getInput("tool_dir");
 
     let toolPath: string = installer.findTool(url);
     if (toolPath === "") {
@@ -14,7 +14,7 @@ export const run = async (): Promise<void> => {
         url,
         toolName,
         archiveFormat,
-        binDir
+        toolDir
       );
       toolPath = await installer.cacheTool(binPath, url);
     }

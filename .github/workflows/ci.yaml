@@ -25,7 +25,7 @@ jobs:
       with:
         url: https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
         test: kubectl version --client
-    - run: kubectl version --client
+    - run: kubectl version --client | grep v1.17.0
   env:
     runs-on: [ubuntu-latest]
     env:
@@ -37,7 +37,7 @@ jobs:
         url: https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
         tool_name: kind
         test: kind version
-    - run: kind version
+    - run: kind version | grep $KIND_VERSION
   archive:
     runs-on: [ubuntu-latest]
     steps:

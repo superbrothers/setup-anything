@@ -1599,7 +1599,7 @@ exports.__esModule = true;
 var core = __webpack_require__(470);
 var installer = __webpack_require__(749);
 exports.run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var url, toolName, archiveFormat, binDir, toolPath, binPath, err_1;
+    var url, toolName, archiveFormat, toolDir, toolPath, binPath, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1607,10 +1607,10 @@ exports.run = function () { return __awaiter(void 0, void 0, void 0, function ()
                 url = core.getInput("url", { required: true });
                 toolName = core.getInput("tool_name");
                 archiveFormat = core.getInput("archive_format");
-                binDir = core.getInput("bin_dir");
+                toolDir = core.getInput("tool_dir");
                 toolPath = installer.findTool(url);
                 if (!(toolPath === "")) return [3, 3];
-                return [4, installer.downloadTool(url, toolName, archiveFormat, binDir)];
+                return [4, installer.downloadTool(url, toolName, archiveFormat, toolDir)];
             case 1:
                 binPath = _a.sent();
                 return [4, installer.cacheTool(binPath, url)];
@@ -4950,7 +4950,7 @@ var util = __webpack_require__(669);
 var childProcess = __webpack_require__(129);
 var execFile = util.promisify(childProcess.execFile);
 var fs = __webpack_require__(747);
-var rename = util.promisify(fs.rename);
+var _a = fs.promises, rename = _a.rename, chmod = _a.chmod;
 exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, function () {
     var stdout;
     return __generator(this, function (_a) {
@@ -4962,59 +4962,68 @@ exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, fu
         }
     });
 }); };
-exports.downloadTool = function (url, toolName, archiveFormat, binDir) { return __awaiter(void 0, void 0, void 0, function () {
-    var downloadedPath, extractedPath, binPath, newPath, _a;
+exports.downloadTool = function (url, toolName, archiveFormat, toolDir) { return __awaiter(void 0, void 0, void 0, function () {
+    var downloadedPath, extractedPath, binPath, toolPath, mode, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0: return [4, exports.expandEnv(url)];
             case 1:
                 url = _b.sent();
-                return [4, exports.expandEnv(binDir)];
+                return [4, exports.expandEnv(toolDir)];
             case 2:
-                binDir = _b.sent();
+                toolDir = _b.sent();
                 core.info("Downloading from " + url);
                 return [4, tc.downloadTool(url)];
             case 3:
                 downloadedPath = _b.sent();
                 core.debug("Downloaded to " + downloadedPath);
-                if (!(archiveFormat === "none")) return [3, 4];
-                if (toolName !== "") {
-                    newPath = path.join(path.dirname(downloadedPath), toolName);
-                    core.info("Renaming to " + toolName);
-                    rename(downloadedPath, newPath);
-                    core.debug("Renamed " + downloadedPath + " to " + newPath);
-                }
-                binPath = path.dirname(downloadedPath);
-                return [3, 13];
+                if (!(archiveFormat === "none")) return [3, 7];
+                toolPath = downloadedPath;
+                if (!(toolName !== "")) return [3, 5];
+                toolPath = path.join(path.dirname(downloadedPath), toolName);
+                core.info("Renaming to " + toolName);
+                return [4, rename(downloadedPath, toolPath)];
             case 4:
+                _b.sent();
+                core.debug("Renamed " + downloadedPath + " to " + toolPath);
+                _b.label = 5;
+            case 5:
+                mode = "0666";
+                core.info("Changing file permissions to " + mode + "...");
+                return [4, chmod(toolPath, mode)];
+            case 6:
+                _b.sent();
+                binPath = path.dirname(toolPath);
+                return [3, 16];
+            case 7:
                 core.info("Extracting...");
                 _a = archiveFormat;
                 switch (_a) {
-                    case "zip": return [3, 5];
-                    case "7z": return [3, 7];
-                    case "tar.gz": return [3, 9];
-                    case "tgz": return [3, 9];
-                    case "tar": return [3, 9];
+                    case "zip": return [3, 8];
+                    case "7z": return [3, 10];
+                    case "tar.gz": return [3, 12];
+                    case "tgz": return [3, 12];
+                    case "tar": return [3, 12];
                 }
-                return [3, 11];
-            case 5: return [4, tc.extractZip(downloadedPath)];
-            case 6:
+                return [3, 14];
+            case 8: return [4, tc.extractZip(downloadedPath)];
+            case 9:
                 extractedPath = _b.sent();
-                return [3, 12];
-            case 7: return [4, tc.extract7z(downloadedPath)];
-            case 8:
+                return [3, 15];
+            case 10: return [4, tc.extract7z(downloadedPath)];
+            case 11:
                 extractedPath = _b.sent();
-                return [3, 12];
-            case 9: return [4, tc.extractTar(downloadedPath)];
-            case 10:
+                return [3, 15];
+            case 12: return [4, tc.extractTar(downloadedPath)];
+            case 13:
                 extractedPath = _b.sent();
-                return [3, 12];
-            case 11: throw new Error("Does not support to extract this archive format: " + archiveFormat);
-            case 12:
+                return [3, 15];
+            case 14: throw new Error("Does not support to extract this archive format: " + archiveFormat);
+            case 15:
                 core.debug("Extracted to " + extractedPath);
-                binPath = path.join(extractedPath, binDir);
-                _b.label = 13;
-            case 13: return [2, binPath];
+                binPath = path.join(extractedPath, toolDir);
+                _b.label = 16;
+            case 16: return [2, binPath];
         }
     });
 }); };
