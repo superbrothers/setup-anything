@@ -9,7 +9,7 @@ const execFile = util.promisify(childProcess.execFile);
 const toolName = "setup-anything";
 
 export const expandEnv = async (str: string): Promise<string> => {
-  const { stdout } = await execFile("echo", [str], {shell: true});
+  const { stdout } = await execFile("echo", ["-n", str], {shell: true});
   return stdout;
 };
 
