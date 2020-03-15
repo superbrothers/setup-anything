@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths_ignore: ["**.md"]
+  pull_request:
+    paths_ignore: ["**md"]
+
+jobs:
+  run:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "12.x"
+    - run: npm install
+    - run: npm run lint
+  simple:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
+        test: kubectl version --client
+    - run: kubectl version --client | grep v1.17.0
+  env:
+    runs-on: [ubuntu-latest]
+    env:
+      KIND_VERSION: v0.6.1
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
+        tool_name: kind
+        test: kind version
+    - run: kind version | grep $KIND_VERSION
+  archive:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://github.com/superbrothers/kubectl-open-svc-plugin/releases/download/v2.3.0/kubectl-open_svc-linux-amd64.zip
+        archive_format: zip
+    - run: kubectl open-svc -h | grep open-svc
