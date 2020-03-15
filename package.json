@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "description": "Setup any tool",
+  "main": "lib/setup-anything.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --fix **/*.ts"
+    "lint": "eslint --fix **/*.ts",
+    "build": "tsc && ncc build"
   },
   "license": "MIT",
   "dependencies": {

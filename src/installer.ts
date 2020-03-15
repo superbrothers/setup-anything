@@ -1,23 +1,59 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
+import * as path from "path";
 import * as filenamifyUrl from "filenamify-url";
 
-export const download = async (
+const toolName = "setup-anything";
+
+export const downloadTool = async (
   url: string,
-  toolName: string
+  archiveFormat: string,
+  binDir: string
 ): Promise<string> => {
   core.info(`Downloading from ${url}`);
+  const downloadedPath: string = await tc.downloadTool(url);
+  core.debug(`Downloaded to ${downloadedPath}`);
 
-  const downloadPath: string = await tc.downloadTool(url);
-  core.debug(`Downloaded to ${downloadPath}`);
+  let extractedPath: string;
+  let binPath: string;
+  if (archiveFormat === "none") {
+    binPath = path.dirname(downloadedPath);
+  } else {
+    core.info("Extracting...");
+    switch (archiveFormat) {
+      case "zip":
+        extractedPath = await tc.extractZip(downloadedPath);
+        break;
+      case "7z":
+        extractedPath = await tc.extract7z(downloadedPath);
+        break;
+      case "tar.gz":
+      case "tgz":
+      case "tar":
+        extractedPath = await tc.extractTar(downloadedPath);
+        break;
+      default:
+        throw new Error(
+          `Does not support to extract this archive format: ${archiveFormat}`
+        );
+    }
+    core.debug(`Extracted to ${extractedPath}`);
 
-  const cachePath: string = await tc.cacheFile(
-    downloadPath,
-    toolName,
-    toolName,
-    filenamifyUrl(url)
-  );
-  core.info(`Cached ${downloadPath} to ${cachePath}`);
+    binPath = path.join(extractedPath, binDir);
+  }
 
-  return cachePath;
+  return binPath;
+};
+
+export const findTool = (url: string): string => {
+  const version = filenamifyUrl(url);
+  return tc.find(toolName, version);
+};
+
+export const cacheTool = async (
+  sourceDir: string,
+  url: string
+): Promise<string> => {
+  const version = filenamifyUrl(url);
+  return tc.cacheDir(sourceDir, toolName, version);
 };

@@ -17,3 +17,11 @@ jobs:
         node-version: "12.x"
     - run: npm install
     - run: npm run lint
+  simple:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        url: https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
+        test: kubectl version --client
