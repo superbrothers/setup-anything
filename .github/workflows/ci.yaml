@@ -25,3 +25,4 @@ jobs:
       with:
         url: https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
         test: kubectl version --client
+    - run: kubectl version --client
