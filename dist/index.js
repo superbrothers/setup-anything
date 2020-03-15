@@ -1605,10 +1605,8 @@ exports.run = function () { return __awaiter(void 0, void 0, void 0, function ()
             case 0:
                 _a.trys.push([0, 4, , 5]);
                 url = core.getInput("url", { required: true });
-                archiveFormat = core.getInput("archive_format", {
-                    required: true
-                });
-                binDir = core.getInput("bin_dir", { required: true });
+                archiveFormat = core.getInput("archive_format");
+                binDir = core.getInput("bin_dir");
                 toolPath = installer.findTool(url);
                 if (!(toolPath === "")) return [3, 3];
                 return [4, installer.downloadTool(url, archiveFormat, binDir)];

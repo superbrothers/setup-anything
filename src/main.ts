@@ -4,10 +4,8 @@ import * as installer from "./installer";
 export const run = async (): Promise<void> => {
   try {
     const url: string = core.getInput("url", { required: true });
-    const archiveFormat: string = core.getInput("archive_format", {
-      required: true
-    });
-    const binDir: string = core.getInput("bin_dir", { required: true });
+    const archiveFormat: string = core.getInput("archive_format");
+    const binDir: string = core.getInput("bin_dir");
 
     let toolPath: string = installer.findTool(url);
     if (toolPath === "") {
