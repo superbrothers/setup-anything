@@ -4953,9 +4953,7 @@ exports.expandEnv = function (str) { return __awaiter(void 0, void 0, void 0, fu
     var stdout;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4, execFile("echo", str.split(" "), {
-                    env: process.env
-                })];
+            case 0: return [4, execFile("echo", [str], { shell: true })];
             case 1:
                 stdout = (_a.sent()).stdout;
                 return [2, stdout];
